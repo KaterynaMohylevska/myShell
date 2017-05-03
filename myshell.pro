@@ -18,4 +18,14 @@ LIBS += -L/usr/lib/x86_64-linux-gnu -lboost_system
 LIBS += -lboost_system -lboost_filesystem
 
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    mkdir.cpp \
+    ls.cpp \
+    ls_detailed.cpp \
+    remove.cpp
+
+HEADERS += \
+    mkdir.h \
+    ls.h \
+    ls_detailed.h \
+    remove.h
