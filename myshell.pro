@@ -22,10 +22,18 @@ SOURCES += main.cpp \
     mkdir.cpp \
     ls.cpp \
     ls_detailed.cpp \
-    remove.cpp
+    remove.cpp \
+    cp.cpp \
+    copy_files.cpp \
+    rename.cpp \
+    move.cpp
 
 HEADERS += \
     mkdir.h \
     ls.h \
     ls_detailed.h \
-    remove.h
+    remove.h \
+    cp.h \
+    copy_files.h \
+    rename.h \
+    move.h

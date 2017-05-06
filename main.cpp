@@ -12,14 +12,17 @@
 #include "ls.h"
 #include "ls_detailed.h"
 #include "remove.h"
-
+#include "cp.h"
+#include "copy_files.h"
+#include "rename.h"
+#include "move.h"
 
 using namespace boost::filesystem;
 using namespace std;
 
 
 
-void change_path(string p){
+void change_path(const string& p){
     try{
         if(p.find("/home") != -1){
             current_path(p);
@@ -34,31 +37,6 @@ void change_path(string p){
     }
 }
 
-/*void cp(string src_path, string dst_path){
-    if (exists(dst_path)){
-        boost::filesystem::remove(dst_path);
-        boost::filesystem::copy_file(src_path, dst_path);
-    }
-    else{
-            cout << "Error" << endl;
-    }
-}
-
-void cp(vector<string> files, string dir){
-    for( auto &i : files){
-        boost::filesystem::copy_file(i, dir);
-        }
-}*/
-
-void rname(string old, string newn){
-    if(exists(old)){
-        rename(old,newn);
-        cout<<"renamed"<<endl;
-      }
-    else{
-        cout << "file: "<< old << " does not exist" << endl;
-    }
-}
 
 
 
@@ -112,6 +90,34 @@ int main(){
             string path  = command.substr(6,command.length());
             makeDir(path);
         }
+        else if (command.find("mv") != -1){
+            string path = command.substr(3,command.length());
+            vector<string> words;
+            boost::split(words, path, boost::is_any_of(" "), boost::token_compress_on);
+            if(words.size() > 2){
+                vector<string>::const_iterator f = words.begin();
+                vector<string>::const_iterator l = words.begin() + words.size() - 1;
+                vector<string> files(f,l);
+                mv(files,words[words.size()-1]);
+            }
+            else{
+                rn(words[0], words[1]);
+            }
+        }
+        else if(command.find("cp") != -1){
+            string files = command.substr(3, command.length());
+            vector<string> dir;
+            boost::split(dir, files, boost::is_any_of(" "), boost::token_compress_on);
+            if(dir.size() > 2){
+                vector<string>::const_iterator f = dir.begin();
+                vector<string>::const_iterator l = dir.begin() + dir.size() - 1;
+                vector<string> files(f,l);
+                c_files(files,dir[dir.size()-1]);
+            }
+            else{
+                cp(dir[0], dir[1]);
+            }
+        }
         else if (command.find("rm") != -1 && command.find("-R") == -1){
             cout << "Can not delete without '-R'" << endl;
         }
@@ -131,12 +137,6 @@ int main(){
                 boost::split(words, path, boost::is_any_of(" "), boost::token_compress_on);
                 rm(words);
             }
-        }
-        else if (command.find("mv") != -1){
-            string path  = command.substr(3,command.length());
-            vector<string> words;
-            boost::split(words, path, boost::is_any_of(" "), boost::token_compress_on);
-            rname(words[0], words[1]);
         }
         else if(command.find("cd") != -1){
             string path  = command.substr(3,command.length());
