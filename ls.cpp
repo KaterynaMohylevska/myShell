@@ -1,21 +1,67 @@
 #include "ls.h"
+#include "ls_detailed.h"
 #include <iostream>
+#include <boost/regex.hpp>
 #include <boost/filesystem.hpp>
 #include <string>
+#include <algorithm>
+#include <boost/algorithm/string/replace.hpp>
+#include "sort_name.h"
+#include "sort_time.h"
+#include "sort_size.h"
 using namespace boost::filesystem;
 using namespace std;
 
 
-int files(const string& str_path_mask){
+int files(vector<string>& param){
+    param.erase(remove(param.begin(), param.end(), "ls"), param.end());
+    if(find(param.begin(),param.end(),"-l") != param.end()){
+        param.erase(remove(param.begin(), param.end(), "-l"), param.end());
+        if(param.size() == 0){
+            cout << "Set the name of file!!!" << endl;
+            return 0;
+        }
+        for (vector<string>::iterator it = param.begin() ; it != param.end(); ++it){
+            file_details(*it);
+        }
+        return 0;
+    }
+
     string str_path = ".";
     string mask;
-    int i = str_path_mask.find("/");
-    if(i != -1 || str_path_mask == "."){
-        str_path = str_path_mask;
+
+    if(param[0].find("/") != -1 || param[0] == "."){
+        str_path = param[0];
+    }
+    else if(param.size() == 0 || param[0] == ".."){
+        str_path = ".";
     }
     else{
-        mask = str_path_mask;
+        mask = param[0];
     }
+
+    //Sorts!!!
+
+    for(string i: param){
+        if(i == "--sort" || i == "--sort=N"|| i == "--sort=n"){
+            ls_sort_by_name(str_path);
+            return 1;
+        }
+        if( i == "--sort=T"|| i == "--sort=t"){
+            ls_sort_by_date(str_path);
+            return 1;
+        }
+        if(i == "--sort=S"|| i == "--sort=s"){
+            ls_sort_by_size(str_path);
+            return 1;
+        }
+    }
+
+    if(param.size() == 2){
+        mask = param[1];
+    }
+
+
     try{
        path p(str_path);
        int len_of_path = str_path.length();
@@ -38,32 +84,20 @@ int files(const string& str_path_mask){
            }
        }
        else{
-           if(mask.find("*") != -1){
-               int ind = mask.find("*");
-               for (directory_iterator itr(p); itr != end_itr; ++itr){
-                   string current_file = itr->path().string().substr(len_of_path+1,current_file.length());
-                   //cout<<current_file << endl;
-                   //cout << current_file.substr(current_file.length()-(mask.length() - ind)+1,current_file.length()) << endl;
-                   //cout << mask.substr(ind+1) << endl;
-                   if (current_file.substr(0,ind) == mask.substr(0,ind)
-                           && mask.substr(ind+1) ==
-                           current_file.substr(current_file.length()-(mask.length() - ind)+1,current_file.length())){
-                       cout<<current_file<<endl;
-                   }
-               }
-           }
-           else {
-               for (directory_iterator itr(p); itr != end_itr; ++itr){
-                   string current_file = itr->path().string().substr(len_of_path+1,current_file.length());
-                   if( mask == current_file){
-                       cout<<current_file<<endl;
-                   }
-               }
 
+           boost::replace_all(mask,"*",".*");
+           boost::replace_all(mask,"?","[a-z]");
+           boost::regex expr{mask};
+
+           for (directory_iterator itr(p); itr != end_itr; ++itr){
+               string current_file = itr->path().string().substr(len_of_path+1,current_file.length());
+               if(boost::regex_match(current_file, expr)){
+                   cout<<current_file<<endl;
+               }
            }
 
        }
-               return 1;
+        return 1;
     }
     catch (const filesystem_error& e){
         cout << "No such file or directory" << endl;

@@ -8,17 +8,9 @@ using namespace std;
 void cp(const string& src_path, const string& dst_path){
     try{
         if (exists(dst_path)){
-            cout << "This file already exists, do you want to copy it? [Y/N]" << endl;
-            string command;
-            getline(cin,command);
-            if(command == "Y" || command == "y"){
-                boost::filesystem::remove(dst_path);
-                boost::filesystem::copy_file(src_path, dst_path);
-                cout<< "Success" << endl;
-            }
-            else{
-                return;
-            }
+            boost::filesystem::remove(dst_path);
+            boost::filesystem::copy_file(src_path, dst_path);
+            cout<< "Success" << endl;
         }
         else{
             boost::filesystem::copy_file(src_path, dst_path);
@@ -26,6 +18,6 @@ void cp(const string& src_path, const string& dst_path){
         }
     }
     catch (const filesystem_error& e){
-            cout << "Something went wrong. Maybe no such directory" << endl;
+        cout << "Something went wrong. Maybe no such directory"<< endl;
     }
 }

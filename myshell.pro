@@ -16,6 +16,8 @@ CONFIG += c++11
 TEMPLATE = app
 LIBS += -L/usr/lib/x86_64-linux-gnu -lboost_system
 LIBS += -lboost_system -lboost_filesystem
+LIBS += -L/usr/lib/x86_64-linux-gnu -lboost_regex
+LIBS += -lboost_regex
 
 
 SOURCES += main.cpp \
@@ -26,7 +28,10 @@ SOURCES += main.cpp \
     cp.cpp \
     copy_files.cpp \
     rename.cpp \
-    move.cpp
+    move.cpp \
+    sort_name.cpp \
+    sort_time.cpp \
+    sort_size.cpp
 
 HEADERS += \
     mkdir.h \
@@ -36,4 +41,7 @@ HEADERS += \
     cp.h \
     copy_files.h \
     rename.h \
-    move.h
+    move.h \
+    sort_name.h \
+    sort_size.h \
+    sort_time.h

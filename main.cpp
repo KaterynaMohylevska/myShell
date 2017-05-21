@@ -39,10 +39,8 @@ void change_path(const string& p){
 
 
 
-
 int main(){
     map<string, string> help_data;
-
     help_data["ls -h"] = "Information about files in directory.";
     help_data["ls --help"] = "Information about files in directory.";
     help_data["pwd -h"] = "Information about current path.";
@@ -65,25 +63,22 @@ int main(){
         getline(cin,command);
 
         if(help_data.find(command) != help_data.end()){
-           cout << help_data.find(command) -> second << endl;
+            cout << help_data.find(command) -> second << endl;
         }
         else if (command == "pwd") {
             cout << current_path() << endl;
         }
-        else if (command == "ls"){
-            files(".");
-        }
+
         else if(command.find("mkdir") != -1){
             string name  = command.substr(6,command.length());
             makeDir(name);
         }
-        else if (command.length() > 5 && command.find("ls -l") != -1){
-            string path  = command.substr(6,command.length());
-            file_details(path);
-        }
-        else if (command.length() > 2 && command.find("ls") != -1){
-            string path  = command.substr(3,command.length());
-            files(path);
+
+        else if (command.find("ls") != -1){
+            vector<string> parametrs;
+            boost::split(parametrs,command,boost::is_any_of("\t "));
+            files(parametrs);
+
         }
 
         else if (command.length() > 4 && command.find("mkdir") != -1){
@@ -95,27 +90,58 @@ int main(){
             vector<string> words;
             boost::split(words, path, boost::is_any_of(" "), boost::token_compress_on);
             if(words.size() > 2){
-                vector<string>::const_iterator f = words.begin();
-                vector<string>::const_iterator l = words.begin() + words.size() - 1;
-                vector<string> files(f,l);
-                mv(files,words[words.size()-1]);
+                if(find(words.begin(), words.end(),"-f") != words.end()){
+                    words.erase(remove(words.begin(),words.end(), "-f"), words.end());
+                    words.erase(remove(words.begin(),words.end(), "mv"), words.end());
+                    vector<string>::const_iterator f = words.begin();
+                    vector<string>::const_iterator l = words.begin() + words.size() - 1;
+                    vector<string> files(f,l);
+                    mv(files,words[words.size()-1]);
+                    cout << "Success/";
+                }
+                else{
+                    cout << "Do you want to replace file if it exist? [Y/N]" << endl;
+                    string command;
+                    getline(cin,command);
+                    if(command == "Y" || command == "y"){
+                        words.erase(remove(words.begin(),words.end(), "-f"), words.end());
+                        words.erase(remove(words.begin(),words.end(), "mv"), words.end());
+                        vector<string>::const_iterator f = words.begin();
+                        vector<string>::const_iterator l = words.begin() + words.size() - 1;
+                        vector<string> files(f,l);
+                        mv(files,words[words.size()-1]);
+                    }
+                }
             }
+
             else{
-                rn(words[0], words[1]);
+                cout << "Do you want to rename it? [Y/N]" << endl;
+                string command;
+                getline(cin,command);
+                if(command == "Y" || command == "y"){
+                    rn(words[0], words[1]);
+                }
             }
         }
+
         else if(command.find("cp") != -1){
-            string files = command.substr(3, command.length());
+            string files = command;
             vector<string> dir;
             boost::split(dir, files, boost::is_any_of(" "), boost::token_compress_on);
-            if(dir.size() > 2){
-                vector<string>::const_iterator f = dir.begin();
-                vector<string>::const_iterator l = dir.begin() + dir.size() - 1;
-                vector<string> files(f,l);
-                c_files(files,dir[dir.size()-1]);
+            //boost::split(dir, command, boost::is_any_of("\t "));
+            if (find(dir.begin(), dir.end(),"-f") != dir.end()){
+                dir.erase(remove(dir.begin(),dir.end(), "-f"), dir.end());
+                dir.erase(remove(dir.begin(),dir.end(), "cp"), dir.end());
+                cp(dir[0], dir[1]);
             }
             else{
-                cp(dir[0], dir[1]);
+                cout << "This file already exists, do you want to copy it? [Y/N]" << endl;
+                string command;
+                getline(cin,command);
+                if(command == "Y" || command == "y"){
+                    dir.erase(remove(dir.begin(),dir.end(), "cp"), dir.end());
+                    cp(dir[0], dir[1]);
+                }
             }
         }
         else if (command.find("rm") != -1 && command.find("-R") == -1){
@@ -142,7 +168,9 @@ int main(){
             string path  = command.substr(3,command.length());
             change_path(path);
         }
-        else if(command == "exit"){
+        else if(command.find("exit") != -1){
+            string code = command.substr(4,command.length());
+            cout << "Exit with code" << code << endl;
             break;
             return 0;
         }
