@@ -7,8 +7,9 @@
 using namespace boost::filesystem;
 using namespace std;
 
-void ls_sort_by_name(const string& pa){
+vector<path> ls_sort_by_name(const string& pa){
     path p(pa);
+    vector<path> l;
     try{
         if (exists(p)) {
             typedef vector<path> vec; // store paths,
@@ -16,14 +17,17 @@ void ls_sort_by_name(const string& pa){
             copy(directory_iterator(p), directory_iterator(), back_inserter(v));
             sort(v.begin(), v.end()); // sort, since directory iteration
             // is not ordered on some file systems
-            for (vec::const_iterator it (v.begin()); it != v.end(); ++it){
-                cout  << *it << endl;
-            }
+//            for (vec::const_iterator it (v.begin()); it != v.end(); ++it){
+//                cout  << *it << endl;
+//            }
+            return v;
         }
-        else
+        else{
             cout << p << " does not exist\n";
-    }
+            return l;
+        }
 
+    }
     catch (const filesystem_error& ex)
     {
         cout << ex.what() << '\n';

@@ -7,7 +7,8 @@
 #include <map>
 #include <boost/algorithm/string/classification.hpp> // Include boost::for is_any_of
 #include <boost/algorithm/string/split.hpp> // Include for boost::split
-
+#include <stdio.h>
+#include <stdlib.h>
 #include "mkdir.h"
 #include "ls.h"
 #include "ls_detailed.h"
@@ -16,6 +17,7 @@
 #include "copy_files.h"
 #include "rename.h"
 #include "move.h"
+#include <iostream>
 
 using namespace boost::filesystem;
 using namespace std;
@@ -73,6 +75,13 @@ int main(){
             string name  = command.substr(6,command.length());
             makeDir(name);
         }
+//        else if(command.find("mysh") != -1){
+//            vector<string> parametrs;
+//            boost::split(parametrs,command,boost::is_any_of("\t "));
+//            string all_path = current_path().string() + parametrs[1];
+//            cout << all_path<<endl;
+//            system(all_path);
+//        }
 
         else if (command.find("ls") != -1){
             vector<string> parametrs;

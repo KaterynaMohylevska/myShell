@@ -8,7 +8,7 @@
 using namespace boost::filesystem;
 using namespace std;
 
-void ls_sort_by_date(const string& pa){
+vector<string> ls_sort_by_date(const string& pa){
     path someDir(pa);
     directory_iterator end_iter;
 
@@ -28,8 +28,10 @@ void ls_sort_by_date(const string& pa){
             }
         }
     }
+    vector<string> sorted;
     for(auto const &ent1 : result_set){
-        file_details(ent1.second.string());
+       sorted.push_back(ent1.second.string());
     }
+    return sorted;
 
 }

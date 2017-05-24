@@ -10,6 +10,6 @@ using namespace boost::filesystem;
 using namespace std;
 #include "ls_detailed.h"
 
-void ls_sort_by_date(const string& pa);
+vector<string> ls_sort_by_date(const string& pa);
 
 #endif // SORT_TIME_H

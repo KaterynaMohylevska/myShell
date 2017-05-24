@@ -9,11 +9,11 @@ using namespace std;
 
 #include "ls_detailed.h"
 
-void ls_sort_by_size(const string& pa){
+vector<string> ls_sort_by_size(const string& pa){
     path someDir(pa);
     directory_iterator end_iter;
 
-    typedef multimap<size_t, path> result_set_t;
+    typedef multimap<time_t, path> result_set_t;
     result_set_t result_set;
 
     if ( exists(someDir) && is_directory(someDir))
@@ -29,8 +29,12 @@ void ls_sort_by_size(const string& pa){
             }
         }
     }
+    vector<string> sorted;
     for(auto const &ent1 : result_set){
-        file_details(ent1.second.string());
+       sorted.push_back(ent1.second.string());
     }
-
+    return sorted;
+//    for(auto const &ent1 : result_set){
+//        file_details(ent1.second.string());
+//    }
 }
