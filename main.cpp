@@ -11,13 +11,13 @@
 #include <stdlib.h>
 #include "mkdir.h"
 #include "ls.h"
-#include "ls_detailed.h"
 #include "remove.h"
 #include "cp.h"
 #include "copy_files.h"
 #include "rename.h"
 #include "move.h"
 #include <iostream>
+#include <sys/wait.h>
 
 using namespace boost::filesystem;
 using namespace std;
@@ -28,10 +28,12 @@ void change_path(const string& p){
     try{
         if(p.find("/home") != -1){
             current_path(p);
+            cout<< current_path() << endl;
         }
         else{
             string p1 = current_path().string() + "/" + p;
             current_path(p1);
+            cout << current_path() << endl;
         }
     }
     catch (const filesystem_error& e){
@@ -39,6 +41,37 @@ void change_path(const string& p){
     }
 }
 
+
+int startProcess(const char * args[])
+{
+    pid_t childPid;
+    childPid = fork();
+    if (childPid == 0)
+    {
+        execvp(args[0], const_cast<char * const *>(args) );
+        cout << "error" << endl;
+        cout << strerror(errno) << std::endl;
+    } else if (childPid < 0)
+    {
+        exit(-1);
+    } else {
+        waitpid(-1, nullptr, 0);
+    }
+    return 0 ;
+}
+
+int callOuter(const std::vector<std::string>& args)
+{
+    const char * argv[args.size()+1];
+    for (int i = 0; i < args.size(); i++) {
+        argv[i] = args[i].c_str();
+    }
+    argv[args.size()] = nullptr;
+    startProcess(argv);
+
+    return 0 ;
+
+}
 
 
 int main(){
@@ -75,14 +108,6 @@ int main(){
             string name  = command.substr(6,command.length());
             makeDir(name);
         }
-//        else if(command.find("mysh") != -1){
-//            vector<string> parametrs;
-//            boost::split(parametrs,command,boost::is_any_of("\t "));
-//            string all_path = current_path().string() + parametrs[1];
-//            cout << all_path<<endl;
-//            system(all_path);
-//        }
-
         else if (command.find("ls") != -1){
             vector<string> parametrs;
             boost::split(parametrs,command,boost::is_any_of("\t "));
@@ -137,20 +162,49 @@ int main(){
             string files = command;
             vector<string> dir;
             boost::split(dir, files, boost::is_any_of(" "), boost::token_compress_on);
-            //boost::split(dir, command, boost::is_any_of("\t "));
+            dir.erase(remove(dir.begin(),dir.end(), "cp"), dir.end());
+
             if (find(dir.begin(), dir.end(),"-f") != dir.end()){
                 dir.erase(remove(dir.begin(),dir.end(), "-f"), dir.end());
-                dir.erase(remove(dir.begin(),dir.end(), "cp"), dir.end());
-                cp(dir[0], dir[1]);
+                if(dir.size() > 2){
+                    string d = dir[dir.size()-1];
+                    dir.pop_back();
+                    c_files(dir,d);
+                }else{
+                    cp(dir[0], dir[1]);}
             }
             else{
-                cout << "This file already exists, do you want to copy it? [Y/N]" << endl;
-                string command;
-                getline(cin,command);
-                if(command == "Y" || command == "y"){
-                    dir.erase(remove(dir.begin(),dir.end(), "cp"), dir.end());
-                    cp(dir[0], dir[1]);
+                if(dir.size() > 2){
+                    string d = dir[dir.size()-1];
+                    dir.pop_back();
+                    for( auto &i : dir){
+                        if(exists(d+"/"+i)){
+                            cout << i <<  " already exists, do you want to copy it? [Y/N]" << endl;
+                            string command;
+                            getline(cin,command);
+                            if(command != "Y" && command != "y"){
+                                dir.erase(remove(dir.begin(),dir.end(), i), dir.end());
+                            }
+                        }
+                    }
+                    if(dir.size()!=0){
+                    c_files(dir,d);}
                 }
+                else{
+                    if(exists(dir[1])){
+                        cout << dir[1]<< " already exists, do you want to copy it? [Y/N]" << endl;
+                        string command;
+                        getline(cin,command);
+                        if(command == "Y" || command == "y"){
+                            dir.erase(remove(dir.begin(),dir.end(), "cp"), dir.end());
+                            cp(dir[0], dir[1]);
+                        }
+                    }else{
+                        cp(dir[0], dir[1]);
+                    }
+
+                }
+
             }
         }
         else if (command.find("rm") != -1 && command.find("-R") == -1){
@@ -177,14 +231,22 @@ int main(){
             string path  = command.substr(3,command.length());
             change_path(path);
         }
-        else if(command.find("exit") != -1){
-            string code = command.substr(4,command.length());
-            cout << "Exit with code" << code << endl;
-            break;
-            return 0;
+        else if (command.find("exit") != -1 && command.length() >= 5) {
+            int code;
+            code = stoi(command.substr(4,command.length()));
+            exit(code);
         }
+        else if (command.find("exit") != -1 && command.length() == 4){
+            exit(0);}
         else{
-            cout << "No such command"<<endl;
+            try{
+               vector<string> splitVec;
+               boost::split(splitVec, command, boost::is_space(), boost::token_compress_on);
+               callOuter(splitVec);
+            }
+            catch (const filesystem_error& e){
+                cout << "No such command"<<endl;
+            }
         }
     }
     return 0;

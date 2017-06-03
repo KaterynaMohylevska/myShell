@@ -34,7 +34,4 @@ vector<string> ls_sort_by_size(const string& pa){
        sorted.push_back(ent1.second.string());
     }
     return sorted;
-//    for(auto const &ent1 : result_set){
-//        file_details(ent1.second.string());
-//    }
 }

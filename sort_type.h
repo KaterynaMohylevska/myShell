@@ -1,15 +1,19 @@
-#ifndef SORT_NAME_H
-#define SORT_NAME_H
+#ifndef SORT_TYPE_H
+#define SORT_TYPE_H
 
-#include "ls_detailed.h"
+
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <string>
 #include <algorithm>
+#include "sort_size.h"
 #include <map>
 using namespace boost::filesystem;
 using namespace std;
 
-vector<string> ls_sort_by_name(const string& pa);
+#include "ls_detailed.h"
 
-#endif // SORT_NAME_H
+vector<string> ls_sort_by_type(const string& pa);
+
+
+#endif // SORT_TYPE_H

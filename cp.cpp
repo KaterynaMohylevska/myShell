@@ -10,11 +10,11 @@ void cp(const string& src_path, const string& dst_path){
         if (exists(dst_path)){
             boost::filesystem::remove(dst_path);
             boost::filesystem::copy_file(src_path, dst_path);
-            cout<< "Success" << endl;
+            cout<<src_path<< " copied" << endl;
         }
         else{
             boost::filesystem::copy_file(src_path, dst_path);
-            cout<< "Success\n" << endl;
+            cout<< src_path<< " copied" << endl;
         }
     }
     catch (const filesystem_error& e){

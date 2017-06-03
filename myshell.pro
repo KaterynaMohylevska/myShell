@@ -31,7 +31,8 @@ SOURCES += main.cpp \
     move.cpp \
     sort_name.cpp \
     sort_time.cpp \
-    sort_size.cpp
+    sort_size.cpp \
+    sort_type.cpp
 
 HEADERS += \
     mkdir.h \
@@ -44,4 +45,5 @@ HEADERS += \
     move.h \
     sort_name.h \
     sort_size.h \
-    sort_time.h
+    sort_time.h \
+    sort_type.h
